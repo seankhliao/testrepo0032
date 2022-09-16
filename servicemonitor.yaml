@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sm-test
+spec:
+  endpoints:
+    - path: /metrics
+      port: monitoring
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ta-test-collector-monitoring

@@ -1,0 +1,44 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: ta-test
+spec:
+  config: |
+    receivers:
+      prometheus:
+        config: 
+          global:
+            scrape_interval: 30s
+          scrape_configs:
+            - job_name: dummy
+              static_configs:
+                - targets:
+                    - 127.0.0.1:8888
+        target_allocator:
+          endpoint: http://ta-test-targetallocator
+          interval: 30s
+          collector_id: ${POD_NAME}
+          http_sd_config:
+            refresh_interval: 60s
+    exporters:
+      prometheus:
+        endpoint: :9100
+        enable_open_metrics: true
+        resource_to_telemetry_conversion:
+          enabled: true
+    service:
+      pipelines:
+        metrics:
+          receivers:
+            - prometheus
+          exporters:
+            - prometheus
+      telemetry:
+        metrics:
+          address: 0.0.0.0:8888
+  mode: statefulset
+  replicas: 1
+  targetAllocator:
+    enabled: true
+    prometheusCR:
+      enabled: true
